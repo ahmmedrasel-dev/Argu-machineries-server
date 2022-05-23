@@ -4,7 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // Middleware
 app.use(cors());
@@ -18,9 +18,9 @@ const verifyJWT = (req, res, next) => {
   if (!authHeader) {
     return res.status(401).send({ message: 'Not Allow! Unauthorization Access!' })
   }
-  const token = authHeader.slpit(' ')[1];
+  const token = authHeader.split(' ')[1];
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (error, decode) {
-    if (err) {
+    if (error) {
       return res.status(403).send({ message: 'Not Allow! Forbidden Access!' })
     }
 
@@ -37,13 +37,41 @@ async function run() {
     const contactInfoCollection = client.db('argo_machineries').collection('concat_info');
     const productCollection = client.db('argo_machineries').collection('products');
 
+    // User update and creta token
+    app.put('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateUser = {
+        $set: user,
+      }
+      const result = await userCollection.updateOne(filter, updateUser, options);
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      res.send({ result, token });
+    })
+
     // User Register Collection.
     app.post('/user', async (req, res) => {
       const user = req.body;
-      // console.log(user)
       const result = await userCollection.insertOne(user);
       const token = jwt.sign({ email: user.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
       res.send({ result, token });
+    })
+
+    // Get All Users:
+    app.get('/users', async (req, res) => {
+      const query = {};
+      const users = await userCollection.find(query).toArray();
+      res.send(users);
+    })
+
+    // Delete User ,
+    app.get('/user/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: ObjectId(id) }
+      const result = await userCollection.deleteOne(query);
+      res.send(result)
     })
 
     // Contact Information:
@@ -61,10 +89,18 @@ async function run() {
     })
 
     // Get all products 
-    app.get('/all-products', async (req, res) => {
+    app.get('/all-products', verifyJWT, async (req, res) => {
       const query = {};
       const products = await productCollection.find(query).toArray()
       res.send(products)
+    })
+
+    // Delete Products
+    app.delete('/product/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const reault = await productCollection.deleteOne(query);
+      res.send(reault)
     })
   }
   finally {
