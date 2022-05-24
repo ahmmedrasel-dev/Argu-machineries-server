@@ -36,7 +36,7 @@ async function run() {
     const userCollection = client.db('argo_machineries').collection('users');
     const contactInfoCollection = client.db('argo_machineries').collection('concat_info');
     const productCollection = client.db('argo_machineries').collection('products');
-
+    const oderCollection = client.db('argo_machineries').collection('orders');
     // User update and creta token
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
@@ -60,14 +60,14 @@ async function run() {
     })
 
     // Get All Users:
-    app.get('/users', async (req, res) => {
+    app.get('/users', verifyJWT, async (req, res) => {
       const query = {};
       const users = await userCollection.find(query).toArray();
       res.send(users);
     })
 
-    // Delete User ,
-    app.get('/user/:id', async (req, res) => {
+    // Delete User
+    app.delete('/user/:id', verifyJWT, async (req, res) => {
       const id = req.params.id
       const query = { _id: ObjectId(id) }
       const result = await userCollection.deleteOne(query);
@@ -89,18 +89,34 @@ async function run() {
     })
 
     // Get all products 
-    app.get('/all-products', verifyJWT, async (req, res) => {
+    app.get('/all-products', async (req, res) => {
       const query = {};
       const products = await productCollection.find(query).toArray()
       res.send(products)
     })
 
+    // Get Signle Product;
+    app.get('/product/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) }
+      const product = await productCollection.findOne(query);
+      res.send(product)
+    })
+
     // Delete Products
-    app.delete('/product/:id', async (req, res) => {
+    app.delete('/product/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const reault = await productCollection.deleteOne(query);
       res.send(reault)
+    })
+
+    // Product Oder.
+    app.post('/oder', async (req, res) => {
+      const order = req.body;
+      const result = await oderCollection.insertOne(order);
+      res.send({ status: success, message: 'Order Placed Successfully' });
+
     })
   }
   finally {
