@@ -116,8 +116,16 @@ async function run() {
       const order = req.body;
       await oderCollection.insertOne(order);
       res.send({ success: true, message: 'Order Placed Successfully' });
-
     })
+
+    // Individual Customer Orders.
+    app.post('/oder/:email', verifyJWT, async (req, res) => {
+      const order = req.params.email;
+      const query = { email: email };
+      const orders = await oderCollection.find(query).toArray()
+      res.send(orders);
+    })
+
   }
   finally {
     // await client.close()/
