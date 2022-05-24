@@ -120,7 +120,7 @@ async function run() {
 
     // Individual Customer Orders.
     app.get('/oder/:email', verifyJWT, async (req, res) => {
-      const order = req.params.email;
+      const email = req.params.email;
       const query = { email: email };
       const orders = await oderCollection.find(query).toArray()
       res.send(orders);
