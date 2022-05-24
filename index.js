@@ -112,10 +112,10 @@ async function run() {
     })
 
     // Product Oder.
-    app.post('/oder', async (req, res) => {
+    app.post('/oder', verifyJWT, async (req, res) => {
       const order = req.body;
-      const result = await oderCollection.insertOne(order);
-      res.send({ status: success, message: 'Order Placed Successfully' });
+      await oderCollection.insertOne(order);
+      res.send({ success: true, message: 'Order Placed Successfully' });
 
     })
   }
