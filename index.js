@@ -41,11 +41,12 @@ async function run() {
     // User update and creta token
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
-      const user = req.body;
+      const name = req.body.name;
+      console.log(name)
       const filter = { email: email };
       const options = { upsert: true };
       const updateUser = {
-        $set: user,
+        $set: { name: name }
       }
       const result = await userCollection.updateOne(filter, updateUser, options);
       const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
@@ -73,6 +74,17 @@ async function run() {
       const query = { _id: ObjectId(id) }
       const result = await userCollection.deleteOne(query);
       res.send(result)
+    })
+
+    // Make Admin User to Database.
+    app.put('/user/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateUser = {
+        $set: { role: 'admin' }
+      }
+      const result = await userCollection.updateOne(filter, updateUser);
+      res.send(result);
     })
 
     // Contact Information:
@@ -112,7 +124,7 @@ async function run() {
       res.send(reault)
     })
 
-    // Product Oder.
+    // Place Oder.
     app.post('/oder', verifyJWT, async (req, res) => {
       const order = req.body;
       await oderCollection.insertOne(order);
@@ -125,6 +137,13 @@ async function run() {
       const query = { customer_email: email };
       const orders = await oderCollection.find(query).toArray()
       res.send(orders);
+    })
+
+    // Get All Order for manage
+    app.get('/orders', async (req, res) => {
+      const query = {};
+      const orders = await oderCollection.find(query).toArray();
+      res.send(orders)
     })
 
     // Oder Delete.
