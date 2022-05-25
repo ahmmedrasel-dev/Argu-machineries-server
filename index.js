@@ -85,7 +85,7 @@ async function run() {
     // Add product to databse.
     app.post('/add-product', async (req, res) => {
       const product = req.body;
-      const result = await productCollection.insertOne(product);
+      await productCollection.insertOne(product);
       res.send({ success: true, message: 'Product Create Successfully!' })
     })
 
@@ -107,9 +107,10 @@ async function run() {
     // Delete Products
     app.delete('/product/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const reault = await productCollection.deleteOne(query);
-      res.send(reault)
+      console.log(id)
+      // const query = { _id: ObjectId(id) };
+      // const reault = await productCollection.deleteOne(query);
+      // res.send(reault)
     })
 
     // Product Oder.
