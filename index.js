@@ -38,6 +38,19 @@ async function run() {
     const productCollection = client.db('argo_machineries').collection('products');
     const oderCollection = client.db('argo_machineries').collection('orders');
     const reviewCollection = client.db('argo_machineries').collection('reviews');
+
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decode.email;
+      const requesterAccount = await userCollection.findOne({ email: requester });
+
+      if (requesterAccount.role === 'admin') {
+        next()
+      }
+      else {
+        res.status(403).send({ message: 'Forbidden Access!' })
+      }
+    }
+
     // User update and creta token
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
@@ -69,11 +82,18 @@ async function run() {
     })
 
     // Delete User
-    app.delete('/user/:id', verifyJWT, async (req, res) => {
+    app.delete('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id
       const query = { _id: ObjectId(id) }
       const result = await userCollection.deleteOne(query);
       res.send(result)
+    })
+
+    app.get('/admin/:email', verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === 'admin';
+      res.send({ admin: isAdmin })
     })
 
     // Make Admin User to Database.
@@ -147,7 +167,7 @@ async function run() {
     })
 
     // Oder Delete.
-    app.delete('/order/:id', async (req, res) => {
+    app.delete('/order/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await oderCollection.deleteOne(query);
@@ -155,7 +175,7 @@ async function run() {
     })
 
     // Customer Review Post,
-    app.post('/review', async (req, res) => {
+    app.post('/review', verifyJWT, async (req, res) => {
       const review = req.body;
       await reviewCollection.insertOne(review);
       res.send({ success: true, message: 'Review Submited Successfully' });
