@@ -130,7 +130,7 @@ async function run() {
     // Customer Review Post,
     app.post('/review', async (req, res) => {
       const review = req.body;
-      const query = { email: review.email, name: review.name }
+      const query = { email: review.email }
       const existingReview = reviewCollection.findOne(query);
       if (existingReview) {
         return res.send({ success: false, message: 'Already Have an Review.' })
