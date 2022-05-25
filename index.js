@@ -91,8 +91,9 @@ async function run() {
     })
 
     // Check Admin User Role;
-    app.get('/admin/:email', verifyAdmin, async (req, res) => {
+    app.get('/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
+      console.log(email)
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user.role === 'admin';
       res.send({ admin: isAdmin })
