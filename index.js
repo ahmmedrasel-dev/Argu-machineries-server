@@ -160,6 +160,14 @@ async function run() {
       res.send(orders);
     })
 
+    // Get Order For Payment
+    app.get('/order/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id
+      const query = { _id: ObjectId(id) };
+      const order = await oderCollection.findOne(query);
+      res.send(order);
+    })
+
     // Get All Order for manage
     app.get('/orders', async (req, res) => {
       const query = {};
