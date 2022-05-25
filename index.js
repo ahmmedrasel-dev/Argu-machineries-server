@@ -130,13 +130,14 @@ async function run() {
     // Customer Review Post,
     app.post('/review', async (req, res) => {
       const review = req.body;
-      const query = { email: review.email }
-      const existingReview = reviewCollection.findOne(query);
-      if (existingReview) {
-        return res.send({ success: false, message: 'Already Have an Review.' })
-      }
       await reviewCollection.insertOne(review);
       res.send({ success: true, message: 'Review Submited Successfully' });
+    })
+
+    app.get('/reviews', async (req, res) => {
+      const query = {};
+      const reviews = await reviewCollection.find(query).toArray();
+      res.send(reviews);
     })
 
   }
