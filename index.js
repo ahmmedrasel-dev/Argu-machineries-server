@@ -54,12 +54,11 @@ async function run() {
     // User update and creta token
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
-      const name = req.body.name;
-      console.log(name)
+      const user = req.body;
       const filter = { email: email };
       const options = { upsert: true };
       const updateUser = {
-        $set: { name: name }
+        $set: user,
       }
       const result = await userCollection.updateOne(filter, updateUser, options);
       const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
