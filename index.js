@@ -37,6 +37,7 @@ async function run() {
     const contactInfoCollection = client.db('argo_machineries').collection('concat_info');
     const productCollection = client.db('argo_machineries').collection('products');
     const oderCollection = client.db('argo_machineries').collection('orders');
+    const reviewCollection = client.db('argo_machineries').collection('reviews');
     // User update and creta token
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
@@ -124,6 +125,13 @@ async function run() {
       const query = { customer_email: email };
       const orders = await oderCollection.find(query).toArray()
       res.send(orders);
+    })
+
+    // Customer Review Post,
+    app.post('/review', async (req, res) => {
+      const review = req.body;
+      await reviewCollection.insertOne(review);
+      res.send({ success: true, message: 'Review Submited Successfully' });
     })
 
   }
