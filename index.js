@@ -81,6 +81,7 @@ async function run() {
       res.send(users);
     })
 
+
     // Delete User
     app.delete('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id
@@ -89,6 +90,7 @@ async function run() {
       res.send(result)
     })
 
+    // Check Admin User Role;
     app.get('/admin/:email', verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
