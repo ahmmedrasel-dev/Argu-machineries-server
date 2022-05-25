@@ -107,10 +107,9 @@ async function run() {
     // Delete Products
     app.delete('/product/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
-      console.log(id)
-      // const query = { _id: ObjectId(id) };
-      // const reault = await productCollection.deleteOne(query);
-      // res.send(reault)
+      const query = { _id: ObjectId(id) };
+      const reault = await productCollection.deleteOne(query);
+      res.send(reault)
     })
 
     // Product Oder.
@@ -126,6 +125,14 @@ async function run() {
       const query = { customer_email: email };
       const orders = await oderCollection.find(query).toArray()
       res.send(orders);
+    })
+
+    // Oder Delete.
+    app.delete('/order/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await oderCollection.deleteOne(query);
+      res.send(result);
     })
 
     // Customer Review Post,
