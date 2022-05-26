@@ -71,6 +71,20 @@ async function run() {
     })
 
 
+    app.put('/orderStatus/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { transactionId: id }
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          status: 'success'
+        }
+      };
+      const updatedOrder = await oderCollection.updateOne(filter, updatedDoc, options);
+      res.send(updatedOrder)
+    })
+
+
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decode.email;
