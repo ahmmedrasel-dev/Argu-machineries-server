@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const strip = require('strip')(process.env.STRIP_SECRECT_KEY)
 
 // Middleware
 app.use(cors());
@@ -38,6 +39,36 @@ async function run() {
     const productCollection = client.db('argo_machineries').collection('products');
     const oderCollection = client.db('argo_machineries').collection('orders');
     const reviewCollection = client.db('argo_machineries').collection('reviews');
+    const paymentCollection = client.db('argo_machineries').collection('payments');
+
+    app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+      const order = req.body;
+      const price = order.price
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: [
+          'card'
+        ]
+      })
+      res.send({ clientSecret: paymentIntent.client_secret })
+    })
+
+    app.patch('/order/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId
+        }
+      };
+      const result = await paymentCollection.insertOne(payment);
+      const updatedOrder = await oderCollection.updateOne(filter, updatedDoc);
+      res.send(updatedDoc)
+    })
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decode.email;
