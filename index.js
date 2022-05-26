@@ -70,7 +70,7 @@ async function run() {
       res.send(updatedOrder)
     })
 
-    app.get('/user/:email', async (req, res) => {
+    app.get('/user/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
       const query = { email: email }
       const user = await userCollection.findOne(query);
