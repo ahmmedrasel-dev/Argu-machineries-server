@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const strip = require('strip')(process.env.STRIP_SECRECT_KEY)
+const stripe = require('stripe')(process.env.STRIP_SECRECT_KEY)
 
 // Middleware
 app.use(cors());
