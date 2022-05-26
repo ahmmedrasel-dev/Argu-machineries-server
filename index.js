@@ -65,10 +65,12 @@ async function run() {
           transactionId: payment.transactionId
         }
       };
-      const result = await paymentCollection.insertOne(payment);
+      await paymentCollection.insertOne(payment);
       const updatedOrder = await oderCollection.updateOne(filter, updatedDoc);
-      res.send(updatedDoc)
+      res.send(updatedOrder)
     })
+
+
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decode.email;
